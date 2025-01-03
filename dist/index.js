@@ -31613,39 +31613,25 @@ function main() {
                 core.info('No prediction found');
                 return;
             }
-            let labels = ["Similar-Issue"];
-            yield octokit.rest.issues.addLabels({
-                owner,
-                repo,
-                issue_number: issueNumber,
-                labels
-            });
-            core.info(`Label 'Similar-Issue' added to issue #${issueNumber}`);
             let message = 'Here are some similar issues that might help you. Please check if they can solve your problem.\n';
             for (const item of prediction) {
                 message += `- #${item[item.length - 1]}\n`;
             }
             const solution = response.solution;
+            let isPossibleSolutionPresent = false;
             if (!solution || solution.length === 0) {
                 core.info('No solution found');
             }
             else {
-                let labels = ["Possible-Solution"];
-                yield octokit.rest.issues.addLabels({
-                    owner,
-                    repo,
-                    issue_number: issueNumber,
-                    labels
-                });
-                core.info(`Label 'Possible-Solution' added to issue #${issueNumber}`);
+                isPossibleSolutionPresent = true;
                 message += '------------\n\nPossible solution (Extracted from existing issue, might be incorrect; please verify carefully)\n\n';
-                let i = 1;
+                let solutionIndex = 1;
                 for (const item of solution) {
                     if (solution.length > 1) {
-                        message += `### Solution ${i}:\n`;
+                        message += `### Solution ${solutionIndex}:\n`;
                     }
                     message += item.solution + '\n\n';
-                    i++;
+                    solutionIndex++;
                     if (item.reference.length > 0) {
                         message += '**Reference**:\n';
                     }
@@ -31654,6 +31640,17 @@ function main() {
                     }
                 }
             }
+            let labels = ["Similar-Issue"];
+            if (isPossibleSolutionPresent) {
+                labels.push("Possible-Solution");
+            }
+            yield octokit.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                labels
+            });
+            core.info(`Labels added to issue #${issueNumber}`);
             message = message.trimEnd();
             yield octokit.rest.issues.createComment({
                 owner,
