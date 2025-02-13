@@ -31567,6 +31567,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const axios_1 = __importDefault(__nccwpck_require__(8757));
+const PoweredBy = "\n_Powered by [issue-sentinel](https://github.com/Azure/issue-Sentinel)_";
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -31656,7 +31657,7 @@ function handleSimilarIssuesScanning(issue, owner, repo, password, token, botUrl
         }
         else {
             isPossibleSolutionPresent = true;
-            message += '------------\n\nPossible solution (Extracted from existing issue, might be incorrect; please verify carefully)\n\n';
+            message += '------------\n\n**Possible solution (Extracted from existing issue, might be incorrect; please verify carefully)**\n\n';
             let solutionIndex = 1;
             for (const item of solution) {
                 if (solution.length > 1) {
@@ -31672,6 +31673,7 @@ function handleSimilarIssuesScanning(issue, owner, repo, password, token, botUrl
                 }
             }
         }
+        message += PoweredBy;
         let labels = ["Similar-Issue"];
         if (isPossibleSolutionPresent) {
             labels.push("Possible-Solution");
@@ -31724,6 +31726,7 @@ function handleSecurityIssuesScanning(issue, owner, repo, password, token, botUr
             return;
         }
         let message = 'This issue is related to security. Please pay attention.\n';
+        message += PoweredBy;
         yield octokit.rest.issues.createComment({
             owner,
             repo,
