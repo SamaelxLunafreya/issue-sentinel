@@ -120,6 +120,18 @@ async function handleSimilarIssuesScanning(issue: any, owner: string, repo: stri
     }
     message += PoweredBy;
 
+    // Check reply status again before adding labels and comments to prevent duplicate labels and comments
+    const if_replied_again: boolean = (await axios.post(botUrl + '/check_reply/', {
+        'repo': owner_repo,
+        'issue': issue.number,
+        'password': password
+    })).data.result;
+
+    if (if_replied_again) {
+        core.info('This issue was already replied by the sentinel during processing. Skip adding labels and comments.');
+        return;
+    }
+
     let labels = ["Similar-Issue"];
     if (isPossibleSolutionPresent) {
         labels.push("Possible-Solution");
